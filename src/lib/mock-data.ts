@@ -124,7 +124,7 @@ const CAPTIONS = [
   "New work in progress… details soon 🔮 #art #creative",
 ];
 
-export let MOCK_POSTS: Post[] = IMAGE_SEEDS.map((seed, i) => ({
+export const MOCK_POSTS: Post[] = IMAGE_SEEDS.map((seed, i) => ({
   id: `post_${i + 1}`,
   author: MOCK_USERS[i % MOCK_USERS.length],
   imageUrl: `https://picsum.photos/seed/${seed}/600/600`,
@@ -166,7 +166,7 @@ const AUDIO_TRACKS = [
   "Escapism — RAYE",
 ];
 
-export let MOCK_REELS: Reel[] = Array.from({ length: 10 }, (_, i) => ({
+export const MOCK_REELS: Reel[] = Array.from({ length: 10 }, (_, i) => ({
   id: `reel_${i + 1}`,
   author: MOCK_USERS[i % MOCK_USERS.length],
   // These are placeholder thumbnail images — real videos would come from UploadThing
@@ -183,9 +183,9 @@ export let MOCK_REELS: Reel[] = Array.from({ length: 10 }, (_, i) => ({
 
 // ── Direct Messages / Conversations ──────────────────────────
 
-function buildConversation(user: User, messages: { text: string; fromMe: boolean; minsAgo: number }[]): Conversation {
+function buildConversation(user: User, messages: { text: string; fromMe: boolean; minsAgo: number }[], id?: string): Conversation {
   const dms = messages.map((m, i) => ({
-    id: `msg_${user.id}_${i}`,
+    id: `msg_${id ?? user.id}_${i}`,
     senderId: m.fromMe ? CURRENT_USER.id : user.id,
     text: m.text,
     createdAt: new Date(Date.now() - m.minsAgo * 60_000).toISOString(),
@@ -193,7 +193,7 @@ function buildConversation(user: User, messages: { text: string; fromMe: boolean
   }));
 
   return {
-    id: `conv_${user.id}`,
+    id: id ?? `conv_${user.id}`,
     participant: user,
     messages: dms,
     lastMessage: dms[dms.length - 1],
@@ -201,60 +201,60 @@ function buildConversation(user: User, messages: { text: string; fromMe: boolean
   };
 }
 
-export let MOCK_CONVERSATIONS: Conversation[] = [
+export const MOCK_CONVERSATIONS: Conversation[] = [
   buildConversation(MOCK_USERS[0], [
     { text: "Hey! Loved your last post 📸", fromMe: false, minsAgo: 60 },
     { text: "Thanks so much! Took ages to edit 😅", fromMe: true, minsAgo: 55 },
     { text: "What camera do you shoot with?", fromMe: false, minsAgo: 50 },
     { text: "Sony A7IV, can't recommend it enough 🙌", fromMe: true, minsAgo: 45 },
     { text: "Adding it to my wishlist right now 😂", fromMe: false, minsAgo: 3 },
-  ]),
+  ],"conv_u1_b"),
   buildConversation(MOCK_USERS[1], [
     { text: "Your art style is incredible ✨", fromMe: true, minsAgo: 120 },
     { text: "Thank you!! I've been working on a new series", fromMe: false, minsAgo: 115 },
     { text: "Can't wait to see it! When does it drop?", fromMe: true, minsAgo: 110 },
     { text: "Friday! Stay tuned 🎨", fromMe: false, minsAgo: 2 },
-  ]),
+  ], "conv_u2_b"),
   buildConversation(MOCK_USERS[2], [
     { text: "Made your pasta recipe last night 🍝", fromMe: true, minsAgo: 200 },
     { text: "How did it turn out??", fromMe: false, minsAgo: 195 },
     { text: "Absolutely amazing. My family loved it!", fromMe: true, minsAgo: 190 },
     { text: "That makes me so happy to hear 🥹", fromMe: false, minsAgo: 185 },
     { text: "Sending you a follow for sure!", fromMe: true, minsAgo: 180 },
-  ]),
+  ],"conv_u3_b"),
   buildConversation(MOCK_USERS[3], [
     { text: "Which country is your favourite so far?", fromMe: true, minsAgo: 300 },
     { text: "Impossible to pick just one 😭 Japan is top 3 for sure", fromMe: false, minsAgo: 290 },
     { text: "Any hidden gems you recommend?", fromMe: true, minsAgo: 280 },
     { text: "Kanazawa in Japan — completely underrated!", fromMe: false, minsAgo: 10 },
-  ]),
+  ], "conv_u4_b"),
   buildConversation(MOCK_USERS[4], [
     { text: "Your workout videos are so motivating!", fromMe: false, minsAgo: 500 },
     { text: "That's exactly why I make them! Keep going 💪", fromMe: true, minsAgo: 490 },
     { text: "Started the 30-day challenge today", fromMe: false, minsAgo: 480 },
     { text: "Let's gooo!! Tag me in your progress posts!", fromMe: true, minsAgo: 475 },
     { text: "Day 1 done! Already dying 😂", fromMe: false, minsAgo: 4 },
-  ]),
+  ], "conv_u5_b"),
   buildConversation(MOCK_USERS[0], [
     { text: "Collaboration idea?", fromMe: false, minsAgo: 720 },
     { text: "I'm all ears!", fromMe: true, minsAgo: 710 },
-  ]),
+  ],"conv_u6_b"),
   buildConversation(MOCK_USERS[1], [
     { text: "Check out my new portfolio site!", fromMe: false, minsAgo: 1440 },
     { text: "Wow, it looks amazing! Love the layout 🔥", fromMe: true, minsAgo: 1430 },
-  ]),
+  ],"conv_u7_b"),
   buildConversation(MOCK_USERS[2], [
     { text: "New recipe coming this week 🍕", fromMe: false, minsAgo: 2880 },
     { text: "Already drooling 🤤", fromMe: true, minsAgo: 2875 },
-  ]),
+  ], "conv_u8_b"),
   buildConversation(MOCK_USERS[3], [
     { text: "Just landed in Patagonia 🏔️", fromMe: false, minsAgo: 4320 },
     { text: "JEALOUS. Enjoy every second!", fromMe: true, minsAgo: 4310 },
-  ]),
+  ], "conv_u9_b"),
   buildConversation(MOCK_USERS[4], [
     { text: "New program launching next month!", fromMe: false, minsAgo: 5760 },
     { text: "Hyped! Send me the early access link when it's up", fromMe: true, minsAgo: 5750 },
-  ]),
+  ], "conv_u10_b"),
 ];
 
 // ── Current user's posts (for profile) ───────────────────────

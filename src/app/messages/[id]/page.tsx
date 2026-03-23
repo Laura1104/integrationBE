@@ -13,7 +13,7 @@ export default function MessageThreadPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Change the URLs below to your real backend endpoints.
+    // (YA) TODO: Change the URLs below to your real backend endpoints.
     // Example:
     //   fetch(`https://your-api.com/messages/${id}`)
     //   fetch("https://your-api.com/messages")

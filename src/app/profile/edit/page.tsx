@@ -3,6 +3,8 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { CURRENT_USER } from "@/lib/mock-data";
+import {toast} from "sonner";
+import {uploadFiles} from "@/lib/uploadthing";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -13,30 +15,34 @@ export default function EditProfilePage() {
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [uploadedAvatarUrl, setUploadedAvatarUrl] = useState(CURRENT_USER.avatar);
 
-  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setAvatarPreview(URL.createObjectURL(file));
 
-    // TODO: Upload the avatar with UploadThing and save the returned URL.
+    // (YA) TODO: Upload the avatar with UploadThing and save the returned URL.
     // Example:
     //   const [result] = await uploadFiles("imageUploader", { files: [file] });
     //   setUploadedAvatarUrl(result.url);
+    const[result]= await uploadFiles ("imageUploader", {files: [file]});
+    setUploadedAvatarUrl(result.url);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
 
-    // TODO: Replace the URL below with your real backend endpoint.
+    // (YA) TODO: Replace the URL below with your real backend endpoint.
     // Also pass `avatarUrl` from UploadThing once you integrate file uploads.
     // Example: fetch("https://your-api.com/profile", { method: "POST", ... })
     await fetch("/api/profile", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, bio, website }),
+      body: JSON.stringify({ name, bio, website, avatarUrl: uploadedAvatarUrl }),
     });
+    toast.success ("Usuario actualizado correctamente");
 
     setSaved(true);
     setLoading(false);

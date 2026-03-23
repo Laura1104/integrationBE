@@ -2,6 +2,10 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { uploadFiles } from "@/lib/uploadthing";
+import { UploadDropzone } from "@uploadthing/react";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
 
 type Tab = "post" | "reel";
 
@@ -15,47 +19,54 @@ export default function CreatePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [uploadedUrl, setUploadedUrl]= useState <string | null> (null);
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     // Show a local preview so the user can see what they picked
     setPreview(URL.createObjectURL(file));
 
-    // TODO: Upload the file to UploadThing here and save the returned URL.
+    // (YA) TODO: Upload the file to UploadThing here and save the returned URL.
     // 1. Install: npm install uploadthing @uploadthing/react
     // 2. Create your file router at /src/app/api/uploadthing/core.ts
     // 3. Upload and save the URL:
     //      const [result] = await uploadFiles("imageUploader", { files: [file] });
     //      setUploadedUrl(result.url);
+
+    const uploader = tab === "post" ? "imageUploader" : "videoUploader";
+    const [result] = await uploadFiles(uploader, { files: [file] });
+    setUploadedUrl(result.url);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!preview) { setError("Please select a file."); return; }
+    if (!uploadedUrl) { setError("Please select a file."); return; }
 
     setLoading(true);
     setError(null);
 
     try {
       if (tab === "post") {
-        // TODO: Replace `preview` with the real URL returned by UploadThing after upload.
-        // TODO: Change the URL below to your real backend endpoint.
+        // (YA) TODO: Replace `preview` with the real URL returned by UploadThing after upload.
+        // (YA) TODO: Change the URL below to your real backend endpoint.
         // Example: fetch("https://your-api.com/posts", { method: "POST", ... })
         await fetch("/api/posts", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ imageUrl: preview, caption, location }),
+          body: JSON.stringify({ imageUrl: uploadedUrl, caption, location }),
         });
+        toast.success ("Post creado correctamente")
       } else {
-        // TODO: Replace `preview` with the real URL returned by UploadThing after upload.
-        // TODO: Change the URL below to your real backend endpoint.
+        // (YA) TODO: Replace `preview` with the real URL returned by UploadThing after upload.
+        // (YA) TODO: Change the URL below to your real backend endpoint.
         // Example: fetch("https://your-api.com/reels", { method: "POST", ... })
         await fetch("/api/reels", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ videoUrl: preview, thumbnailUrl: preview, caption, audioTrack }),
+          body: JSON.stringify({ videoUrl: uploadedUrl, thumbnailUrl: uploadedUrl, caption, audioTrack }),
         });
+        toast.success ("Reel creado correctamente")
       }
 
       router.push("/");
@@ -100,16 +111,17 @@ export default function CreatePage() {
               <video src={preview} className="w-full h-full object-cover" muted loop autoPlay playsInline />
             )
           ) : (
-            <div className="flex flex-col items-center gap-3 text-gray-400 p-8 text-center">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-12 h-12">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-              </svg>
-              <p className="font-semibold text-sm">Click to select a file</p>
-              <p className="text-xs">
-                {tab === "post" ? "JPEG, PNG, WEBP" : "MP4, MOV"}
-              </p>
-              {/* TODO: Replace this area with <UploadDropzone> from @uploadthing/react */}
-            </div>
+            <UploadDropzone<OurFileRouter, "imageUploader" | "videoUploader">
+              endpoint={tab === "post" ? "imageUploader" : "videoUploader"}
+              onClientUploadComplete={(res) => {
+                setUploadedUrl(res[0].url);
+                setPreview(res[0].url);
+                toast.success("Upload complete!");
+              }}
+              onUploadError={(error: Error) => {
+                setError(error.message);
+              }}
+            />
           )}
         </div>
         <input
@@ -171,4 +183,5 @@ export default function CreatePage() {
       </form>
     </div>
   );
-}
+};
+
